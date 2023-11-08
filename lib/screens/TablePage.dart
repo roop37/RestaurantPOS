@@ -3,6 +3,7 @@ import 'package:management/models/menu.model.dart';
 import 'package:management/models/table.model.dart';
 import 'package:management/screens/HomePage.dart';
 import 'package:management/screens/MenuPage.dart';
+import 'package:management/widgets/OrderClosingPopup.dart';
 import 'package:management/widgets/TakeOrderPopup.dart';
 
 class TablePage extends StatelessWidget {
@@ -123,10 +124,19 @@ class TablePage extends StatelessWidget {
 
         ElevatedButton(
           onPressed: () {
-            // Handle "Complete Order" button
+            showDialog(
+              context: context,
+              builder: (context) {
+                return OrderClosingPopup(
+                  tableNumber: table.tableNumber,
+                  totalBill: totalBill, // Pass the total bill from your existing logic
+                );
+              },
+            );
           },
           child: Text('Complete Order'),
         ),
+
       ],
     );
   }

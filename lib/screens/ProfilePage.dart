@@ -15,7 +15,7 @@ class ProfilePage extends StatelessWidget {
           SizedBox(height: 100,),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => HistoryPage(),
@@ -26,7 +26,7 @@ class ProfilePage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => AddMenuItemPage(),

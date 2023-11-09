@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:management/models/OrderDetails.model.dart';
@@ -7,6 +9,7 @@ import 'package:management/models/table.model.dart';
 import 'package:management/redux/App_state.dart';
 import 'package:management/redux/actions.dart';
 import 'package:management/widgets/OrderDetailsClosing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderClosingPopup extends StatefulWidget {
   final int tableNumber;
@@ -33,10 +36,25 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
   String selectedTransactionType = 'Cash';
   String selectedOrderType = 'Dine in';
 
+  Future<void> saveOrderDataToLocal(OrderDetails orderData) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> orderList = prefs.getStringList('orderList') ?? [];
 
-  void saveScreenshot() {
-    // Implement saving a screenshot here
+      // Convert OrderDetails to JSON and add it to the list
+      final orderJson = json.encode(orderData.toJson());
+      orderList.add(orderJson);
+      print('Saved order: $orderJson');
+
+      // Save the updated list to shared preferences
+      prefs.setStringList('orderList', orderList);
+      print('Updated orderList: $orderList');
+    } catch (e) {
+      print('Error saving order data: $e');
+    }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,79 +64,81 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
 
     return AlertDialog(
       title: Text('Table ${widget.tableNumber} - Order Closing'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Total Bill: ${widget.totalBill.toStringAsFixed(2)} INR',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 20),
-          Row(
-            children: [
-              Text('Transaction Type: '),
-              DropdownButton<String>(
-                value: selectedTransactionType,
-                onChanged: (value) {
-                  setState(() {
-                    selectedTransactionType = value!;
-                  });
-                },
-                items: <String>['Cash', 'Online']
-                    .map<DropdownMenuItem<String>>(
-                      (String value) => DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  ),
-                )
-                    .toList(),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Row(
-            children: [
-              Text('Is Flagged: '),
-              Switch(
-                value: isFlagged,
-                onChanged: (value) {
-                  setState(() {
-                    isFlagged = value;
-                  });
-                },
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Row(
-            children: [
-              Text('Order Type: '),
-              DropdownButton<String>(
-                value: selectedOrderType,
-                onChanged: (value) {
-                  setState(() {
-                    selectedOrderType = value!;
-                  });
-                },
-                items: <String>['Dine in', 'Take away', 'Online Order']
-                    .map<DropdownMenuItem<String>>(
-                      (String value) => DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  ),
-                )
-                    .toList(),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          isFlagged
-              ? TextField(
-            controller: remarksController,
-            decoration: InputDecoration(labelText: 'Remarks'),
-          )
-              : SizedBox.shrink(),
-        ],
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Total Bill: ${widget.totalBill.toStringAsFixed(2)} INR',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text('Transaction Type: '),
+                DropdownButton<String>(
+                  value: selectedTransactionType,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedTransactionType = value!;
+                    });
+                  },
+                  items: <String>['Cash', 'Online']
+                      .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ),
+                  )
+                      .toList(),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text('Is Flagged: '),
+                Switch(
+                  value: isFlagged,
+                  onChanged: (value) {
+                    setState(() {
+                      isFlagged = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text('Order Type: '),
+                DropdownButton<String>(
+                  value: selectedOrderType,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedOrderType = value!;
+                    });
+                  },
+                  items: <String>['Dine in', 'Take away', 'Online Order']
+                      .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ),
+                  )
+                      .toList(),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            isFlagged
+                ? TextField(
+              controller: remarksController,
+              decoration: InputDecoration(labelText: 'Remarks'),
+            )
+                : SizedBox.shrink(),
+          ],
+        ),
       ),
       actions: [
         ElevatedButton(
@@ -133,8 +153,12 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
               isFlagged: isFlagged,
               remarks: remarks,
               totalBill: widget.totalBill,
+              orderType: selectedOrderType, // Set the orderType property
 
             );
+
+            saveOrderDataToLocal(orderData);
+
             final updatedTable = widget.tableData.copyWith(isOccupied: false, order: null);
             StoreProvider.of<AppState>(context).dispatch(UpdateTableAction(updatedTable));
 
@@ -145,10 +169,15 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
             );
           },
           child: Text('Confirm Closing of Order'),
+
+
         ),
 
 
       ],
     );
   }
+
 }
+
+

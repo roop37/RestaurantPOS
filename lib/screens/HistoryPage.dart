@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:management/models/OrderDetails.model.dart';
-import 'dart:math';
-
-import 'package:management/models/orderItem.model.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HistoryPage extends StatefulWidget {
   @override
@@ -15,24 +14,31 @@ class _HistoryPageState extends State<HistoryPage> {
   String selectedPaymentMode = 'all';
   String selectedFlagged = 'all';
 
-  List<OrderDetails> orderList = List.generate(30, (index) {
-    // Generate 30 dummy orders with random data
-    return OrderDetails(
-      name: 'Customer $index',
-      numberOfPersons: Random().nextInt(5) + 1, // Random number of persons between 1 and 5
-      orderItems: List.generate(3, (itemIndex) {
-        return OrderItem(
-          menuItem: 'Item $itemIndex',
-          quantity: Random().nextInt(3) + 1, // Random quantity between 1 and 3
-        );
-      }),
-      totalBill: Random().nextDouble() * 100, // Random total bill between 0 and 100
-      transactionType: ['dine in', 'take-away', 'online order'][Random().nextInt(3)], // Random transaction type
-      isFlagged: Random().nextBool(), // Random flagged value
-      remarks: 'Remarks for order $index', // Remarks with order index
-      date: DateTime.now().subtract(Duration(days: Random().nextInt(2))), // Random date (today or yesterday)
-    );
-  });
+  List<OrderDetails> orderList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch orders when the widget is initialized
+    fetchOrdersFromLocalStorage();
+  }
+
+  Future<void> fetchOrdersFromLocalStorage() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> storedOrders = prefs.getStringList('orderList') ?? [];
+
+      setState(() {
+        orderList = storedOrders
+            .map((orderJson) =>
+            OrderDetails.fromJson(json.decode(orderJson)))
+            .toList();
+      });
+      print('Successfully fetched orders: $orderList');
+    } catch (e) {
+      print('Error fetching order data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +51,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
       // Filter by order type
       bool filterByOrderType =
-          selectedOrderType == 'all' || order.transactionType.toLowerCase() == selectedOrderType;
+          selectedOrderType.toLowerCase() == 'all' ||
+              order.orderType.toLowerCase() == selectedOrderType.toLowerCase();
 
       // Filter by payment mode
       bool filterByPaymentMode =
@@ -57,7 +64,6 @@ class _HistoryPageState extends State<HistoryPage> {
       // Apply all filters
       return filterByDate && filterByOrderType && filterByPaymentMode && filterByFlagged;
     }).toList();
-
 
     // Calculate total earnings
     double totalEarnings = filteredOrders.fold(0.0, (sum, order) => sum + order.totalBill);
@@ -98,7 +104,8 @@ class _HistoryPageState extends State<HistoryPage> {
                 });
               }
             },
-            child: Text('${selectedDate.day}/${selectedDate.month}/${selectedDate.year}'),
+            child: Text(
+                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}'),
           ),
         ],
       ),
@@ -108,49 +115,58 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget _buildFilters() {
     return Container(
       padding: EdgeInsets.all(16.0),
-      child: Row(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildDropdown(
-            label: 'Order Type',
-            value: selectedOrderType,
-            items: ['all', 'dine in', 'take-away', 'online order'],
-            onChanged: (String? value) {
-              if (value != null) {
-                setState(() {
-                  selectedOrderType = value;
-                });
-              }
-            },
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildDropdown(
+                label: 'Order Type',
+                value: selectedOrderType,
+                items: ['all', 'Dine in', 'Take away', 'Online Order'],
+                onChanged: (String? value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedOrderType = value;
+                    });
+                  }
+                },
+              ),
+              _buildDropdown(
+                label: 'Payment Mode',
+                value: selectedPaymentMode,
+                items: ['all', 'cash', 'online'],
+                onChanged: (String? value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedPaymentMode = value;
+                    });
+                  }
+                },
+              ),
+              Row(
+                children: [
+                  Text('Flagged: '),
+                  Switch(
+                    value: selectedFlagged == 'flagged',
+                    onChanged: (value) {
+                      setState(() {
+                        selectedFlagged = value ? 'flagged' : 'all';
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
-          _buildDropdown(
-            label: 'Payment Mode',
-            value: selectedPaymentMode,
-            items: ['all', 'cash', 'online'],
-            onChanged: (String? value) {
-              if (value != null) {
-                setState(() {
-                  selectedPaymentMode = value;
-                });
-              }
-            },
-          ),
-          _buildDropdown(
-            label: 'Flagged',
-            value: selectedFlagged,
-            items: ['all', 'flagged'],
-            onChanged: (String? value) {
-              if (value != null) {
-                setState(() {
-                  selectedFlagged = value;
-                });
-              }
-            },
-          ),
+
         ],
       ),
     );
   }
+
 
   Widget _buildDropdown({
     required String label,
@@ -175,6 +191,7 @@ class _HistoryPageState extends State<HistoryPage> {
       ],
     );
   }
+
   Widget _buildOrderList(List<OrderDetails> orders) {
     return Expanded(
       child: ListView.builder(
@@ -203,7 +220,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           if (order.name.isNotEmpty) Text('Name: ${order.name}'),
-                          Text('Order Type: ${order.transactionType}'),
+                          Text('Order Type: ${order.orderType}'),
                           Text('No. of Persons: ${order.numberOfPersons}'),
                         ],
                       ),
@@ -242,8 +259,6 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
     );
   }
-
-
 
   Widget _buildTotalEarnings(double totalEarnings) {
     return Card(

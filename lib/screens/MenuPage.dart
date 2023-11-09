@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:management/models/MenuList.dart';
 import 'package:management/models/menu.model.dart';
 import 'package:management/models/order.model.dart';
+import 'package:management/models/orderItem.model.dart';
 import 'package:management/redux/App_state.dart';
 import 'package:management/redux/actions.dart';
 import 'package:management/models/table.model.dart';
@@ -49,7 +52,7 @@ class _MenuPageState extends State<MenuPage> {
     }
   }
 
-  void confirmSelection() {
+  void confirmSelection() async{
     final List<OrderItem> newItems = [];
 
     quantityMap.forEach((itemName, quantity) {
@@ -79,7 +82,6 @@ class _MenuPageState extends State<MenuPage> {
     );
 
     StoreProvider.of<AppState>(context).dispatch(UpdateTableAction(updatedTable));
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

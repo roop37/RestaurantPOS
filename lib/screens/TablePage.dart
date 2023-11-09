@@ -129,7 +129,9 @@ class TablePage extends StatelessWidget {
               builder: (context) {
                 return OrderClosingPopup(
                   tableNumber: table.tableNumber,
-                  totalBill: totalBill, // Pass the total bill from your existing logic
+                  totalBill: totalBill,
+                  tableData: table, // Pass the total bill from your existing logic
+                  date: table.checkInTime ?? DateTime.now(),
                 );
               },
             );

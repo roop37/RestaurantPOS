@@ -1,10 +1,7 @@
 import 'package:management/models/order.model.dart';
+import 'package:management/models/orderItem.model.dart';
 
-class OrderItem {
-  final String menuItem;
-  final int quantity;
-  OrderItem({required this.menuItem, required this.quantity });
-}
+
 class TableModel {
   final int tableNumber;
   final bool isOccupied;
@@ -23,6 +20,18 @@ class TableModel {
     this.order,    // Optional checkInTime property
     this.orderItem
   });
+
+  TableModel copyWith({bool? isOccupied, Order? order}) {
+    return TableModel(
+      tableNumber: this.tableNumber,
+      isOccupied: isOccupied ?? this.isOccupied,
+      order: order ?? this.order,
+      customerName: this.customerName,
+      numberOfPersons: this.numberOfPersons,
+      checkInTime: this.checkInTime,
+    );
+  }
+
 
   factory TableModel.vacant(int tableNumber) {
     return TableModel(

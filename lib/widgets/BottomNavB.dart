@@ -25,8 +25,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.pedal_bike_outlined, color: widget.currentIndex == 1 ? Colors.blue : Colors.grey),
-          label: 'Order Online',
+          icon: Icon(Icons.menu_book, color: widget.currentIndex == 1 ? Colors.blue : Colors.grey),
+          label: 'My Menu',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person, color: widget.currentIndex == 2 ? Colors.blue : Colors.grey),

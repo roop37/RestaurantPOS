@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:management/models/MenuList.dart';
+import 'package:management/models/menu.model.dart';
 import 'package:management/models/table.model.dart';
 import 'package:management/redux/App_state.dart';
-import 'package:management/screens/OnlineOrderPage.dart';
+import 'package:management/screens/MenuEdit.dart';
 import 'package:management/screens/ProfilePage.dart';
 import 'package:management/screens/TablePage.dart';
+import 'package:management/storage/data_manager.dart';
 import 'package:management/widgets/BottomNavB.dart';
 import 'package:management/widgets/TableRectangles.dart';
 import 'package:redux/redux.dart';
@@ -17,6 +19,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  List<MenuItem> menuList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMenuData();
+  }
+  void fetchMenuData() async {
+    List<MenuItem> fetchedMenu = await fetchMenuList();
+    setState(() {
+      menuList = fetchedMenu;
+    });
+  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -28,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => OnlineOrderPage(),
+          builder: (context) => MenuEditPage(),
         ),
       );
     } else if (index == 2) {
@@ -61,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TablePage(table: table, menuList: dummyMenuList),
+                      builder: (context) => TablePage(table: table, menuList: menuList),
                     ),
                   );
                 },

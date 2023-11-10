@@ -7,7 +7,7 @@ class AppState {
   AppState({required this.tables});
 
   factory AppState.initialState() {
-    final List<TableModel> initialTables = List.generate(8, (index) {
+    final List<TableModel> initialTables = List.generate(10, (index) {
       return TableModel.vacant(index + 1);
     });
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:management/models/MenuList.dart';
+import 'package:management/models/menu.model.dart';
 import 'package:management/models/order.model.dart';
 import 'package:management/models/table.model.dart';
 import 'package:management/screens/MenuPage.dart';
+import 'package:management/storage/data_manager.dart';
 
 class TakeOrderPop extends StatefulWidget {
   final TableModel table;
@@ -16,6 +17,7 @@ class TakeOrderPop extends StatefulWidget {
 class _TakeOrderPopState extends State<TakeOrderPop> {
   final TextEditingController customerNameController = TextEditingController();
   final TextEditingController numberOfPersonsController = TextEditingController();
+  List<MenuItem> menuList = [];
 
   @override
   void initState() {
@@ -24,6 +26,15 @@ class _TakeOrderPopState extends State<TakeOrderPop> {
     // Initialize text fields with existing values
     final String customerName = widget.table.customerName ?? '';
     numberOfPersonsController.text = widget.table.numberOfPersons.toString();
+    fetchMenuData();
+
+  }
+
+  void fetchMenuData() async {
+    List<MenuItem> fetchedMenu = await fetchMenuList();
+    setState(() {
+      menuList = fetchedMenu;
+    });
   }
 
   @override
@@ -66,7 +77,7 @@ class _TakeOrderPopState extends State<TakeOrderPop> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => MenuPage(
-                    menuList: dummyMenuList,
+                    menuList: menuList,
                     table: updatedTable, selectedItems: [], // Pass the table argument to MenuPage
                   ),
                 ),

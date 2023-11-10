@@ -9,6 +9,7 @@ import 'package:management/redux/App_state.dart';
 import 'package:management/redux/actions.dart';
 import 'package:management/models/table.model.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:management/storage/data_manager.dart';
 import 'package:redux/redux.dart';
 
 import 'TablePage.dart';
@@ -27,15 +28,27 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  List<MenuItem> menuList = dummyMenuList;
+  List<MenuItem> menuList = [];
   Map<String, int> quantityMap = {};
   String searchTerm = ''; // Add a searchTerm variable
   List<OrderItem> selectedItems = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchMenuData();
+  }
+
+  void fetchMenuData() async {
+    List<MenuItem> fetchedMenu = await fetchMenuList();
+    setState(() {
+      menuList = fetchedMenu;
+    });
+  }
 
   void updateQuantity(MenuItem menuItem, int newQuantity) {
     if (newQuantity >= 0) {
       setState(() {
-        quantityMap[menuItem.name] = newQuantity;
+        quantityMap[menuItem.name ?? ""] = newQuantity;
       });
     }
   }
@@ -47,7 +60,7 @@ class _MenuPageState extends State<MenuPage> {
     } else {
       return menuList
           .where((item) =>
-          item.name.toLowerCase().contains(searchTerm.toLowerCase()))
+          item.name!.toLowerCase().contains(searchTerm.toLowerCase()))
           .toList();
     }
   }
@@ -85,7 +98,7 @@ class _MenuPageState extends State<MenuPage> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => TablePage(table: updatedTable, menuList: dummyMenuList),
+        builder: (context) => TablePage(table: updatedTable, menuList: menuList),
       ),
     );
   }
@@ -120,7 +133,7 @@ class _MenuPageState extends State<MenuPage> {
                 final quantity = quantityMap[menuItem.name] ?? 0;
 
                 return ListTile(
-                  title: Text(menuItem.name),
+                  title: Text(menuItem.name ?? ""),
                   subtitle: Text('Price: ${menuItem.price} INR'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,

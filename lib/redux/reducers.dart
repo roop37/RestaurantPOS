@@ -1,5 +1,6 @@
-import 'package:management/redux/actions.dart';
-import 'package:management/redux/App_state.dart';
+
+import 'package:gravitea_pos/redux/App_state.dart';
+import 'package:gravitea_pos/redux/actions.dart';
 
 AppState appReducer(AppState state, dynamic action) {
   if (action is UpdateTableAction) {

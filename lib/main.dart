@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:management/redux/App_state.dart';
-import 'package:management/redux/reducers.dart';
-import 'package:management/screens/HomePage.dart';
+import 'package:gravitea_pos/redux/App_state.dart';
+import 'package:gravitea_pos/redux/reducers.dart';
+import 'package:gravitea_pos/screens/HomePage.dart';
 import 'package:redux/redux.dart';
+
+import 'app_colors.dart';
 
 void main() {
   final store = Store<AppState>(
@@ -13,6 +15,7 @@ void main() {
 
   runApp(MyApp(store: store));
 }
+
 class MyApp extends StatelessWidget {
   final Store<AppState> store;
 
@@ -27,6 +30,8 @@ class MyApp extends StatelessWidget {
         title: 'Gravitea Management System',
         theme: ThemeData(
           primarySwatch: Colors.blue,
+          primaryColor: AppColors.primaryColor,
+          hintColor: AppColors.accentColor,
         ),
         home: HomeScreen(),
       ),

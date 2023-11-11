@@ -1,6 +1,4 @@
-import 'package:management/models/orderItem.model.dart';
-import 'package:management/models/table.model.dart';
-
+import 'package:gravitea_pos/models/orderItem.model.dart';
 class Order {
   final String? customerName;
   final int? numberOfPersons;

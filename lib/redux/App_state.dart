@@ -1,5 +1,6 @@
-import 'package:management/models/table.model.dart';
 
+
+import 'package:gravitea_pos/models/table.model.dart';
 
 class AppState {
   final List<TableModel> tables;
@@ -7,7 +8,7 @@ class AppState {
   AppState({required this.tables});
 
   factory AppState.initialState() {
-    final List<TableModel> initialTables = List.generate(10, (index) {
+    final List<TableModel> initialTables = List.generate(12, (index) {
       return TableModel.vacant(index + 1);
     });
 

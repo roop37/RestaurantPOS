@@ -1,6 +1,5 @@
-import 'dart:convert';
 
-import 'package:management/models/orderItem.model.dart';
+import 'package:gravitea_pos/models/orderItem.model.dart';
 
 class OrderDetails {
   final String name;
@@ -56,6 +55,25 @@ class OrderDetails {
       orderType: json['orderType'] ?? '', // Use an empty string if 'orderType' is null
     );
   }
+
+  OrderDetails copyWith({
+    bool? isFlagged,
+    // Add other fields you want to be able to update
+  }) {
+    return OrderDetails(
+      name: this.name,
+      numberOfPersons: this.numberOfPersons,
+      orderItems: this.orderItems,
+      totalBill: this.totalBill,
+      transactionType: this.transactionType,
+      isFlagged: isFlagged ?? this.isFlagged,
+      remarks: this.remarks,
+      date: this.date,
+      orderType: this.orderType,
+    );
+  }
+
+
 
 
 }

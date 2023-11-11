@@ -1,5 +1,5 @@
-import 'package:management/models/OrderDetails.model.dart';
-import 'package:management/models/orderItem.model.dart';
+import 'package:gravitea_pos/models/OrderDetails.model.dart';
+import 'package:gravitea_pos/models/orderItem.model.dart';
 
 extension OrderDetailsSerialization on OrderDetails {
   String toJson() {

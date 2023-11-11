@@ -1,8 +1,7 @@
 
 import 'dart:convert';
-import 'package:management/models/menu.model.dart'; // Make sure to import your MenuItem class
+import 'package:gravitea_pos/models/menu.model.dart'; // Make sure to import your MenuItem class
 
-// menu_serialization.dart
 
 extension MenuListSerialization on List<MenuItem> {
   String toJson() {

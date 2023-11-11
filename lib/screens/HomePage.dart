@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:management/models/MenuList.dart';
-import 'package:management/models/menu.model.dart';
-import 'package:management/models/table.model.dart';
-import 'package:management/redux/App_state.dart';
-import 'package:management/screens/MenuEdit.dart';
-import 'package:management/screens/ProfilePage.dart';
-import 'package:management/screens/TablePage.dart';
-import 'package:management/storage/data_manager.dart';
-import 'package:management/widgets/BottomNavB.dart';
-import 'package:management/widgets/TableRectangles.dart';
-import 'package:redux/redux.dart';
+import 'package:gravitea_pos/models/menu.model.dart';
+import 'package:gravitea_pos/models/table.model.dart';
+import 'package:gravitea_pos/redux/App_state.dart';
+import 'package:gravitea_pos/screens/MenuEdit.dart';
+import 'package:gravitea_pos/screens/ProfilePage.dart';
+import 'package:gravitea_pos/screens/TablePage.dart';
+import 'package:gravitea_pos/storage/data_manager.dart';
+import 'package:gravitea_pos/widgets/BottomNavB.dart';
+import 'package:gravitea_pos/widgets/TableRectangles.dart';
+
+import '../app_colors.dart'; // Import the color file
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     fetchMenuData();
   }
+
   void fetchMenuData() async {
     List<MenuItem> fetchedMenu = await fetchMenuList();
     setState(() {
@@ -57,12 +58,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GraviTEA'),
+        title: Text(
+          'GraviTEA',
+          style: TextStyle(color: Colors.white), // Set text color to white
+        ),
+        backgroundColor: AppColors.primaryColor, // Set app bar background color
       ),
       body: StoreConnector<AppState, List<TableModel>>(
         converter: (store) => store.state.tables,
@@ -76,13 +80,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TablePage(table: table, menuList: menuList),
+                      builder: (context) =>
+                          TablePage(table: table, menuList: menuList),
                     ),
                   );
                 },
                 child: TableWidget(
                   tableNumber: table.tableNumber,
                   isOccupied: table.isOccupied,
+                  backgroundColor: AppColors.accentColor, // Set table background color
                 ),
               );
             },
@@ -92,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: MyBottomNavigationBar(
         currentIndex: _currentIndex,
         onTabTapped: _onTabTapped,
+        backgroundColor: AppColors.primaryColor, // Set bottom navigation bar background color
       ),
     );
   }

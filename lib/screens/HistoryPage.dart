@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:management/models/OrderDetails.model.dart';
+import 'package:gravitea_pos/app_colors.dart';
+import 'package:gravitea_pos/models/OrderDetails.model.dart';
+import 'package:gravitea_pos/widgets/OrderHistoryPopup.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -70,7 +72,9 @@ class _HistoryPageState extends State<HistoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('History'),
+        title: const Text('History'),
+        backgroundColor: AppColors.primaryColor, // Set app bar background color
+
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,10 +90,10 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Widget _buildDatePicker() {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
-          Text('Date: '),
+          const Text('Date: '),
           ElevatedButton(
             onPressed: () async {
               final DateTime? pickedDate = await showDatePicker(
@@ -104,17 +108,22 @@ class _HistoryPageState extends State<HistoryPage> {
                 });
               }
             },
+            style: ElevatedButton.styleFrom(
+              primary: AppColors.primaryColor, // Set the button color
+            ),
             child: Text(
-                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}'),
+              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+            ),
           ),
         ],
       ),
     );
   }
 
+
   Widget _buildFilters() {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -148,7 +157,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               Row(
                 children: [
-                  Text('Flagged: '),
+                  const Text('Flagged: '),
                   Switch(
                     value: selectedFlagged == 'flagged',
                     onChanged: (value) {
@@ -156,7 +165,9 @@ class _HistoryPageState extends State<HistoryPage> {
                         selectedFlagged = value ? 'flagged' : 'all';
                       });
                     },
-                  ),
+                    activeColor: AppColors.primaryColor,
+                  )
+
                 ],
               ),
             ],
@@ -202,10 +213,22 @@ class _HistoryPageState extends State<HistoryPage> {
           return Card(
             child: InkWell(
               onTap: () {
-                // Handle card tap (if needed)
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return OrderHistoryPopup(orderData: orders[index], onClose: () {
+
+                      setState(() {
+                        fetchOrdersFromLocalStorage();
+                      });
+                    });                    // Use the actual order data for the selected item
+                  },
+                );
               },
+
+
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -217,11 +240,11 @@ class _HistoryPageState extends State<HistoryPage> {
                         children: [
                           Text(
                             '${order.date.day}/${order.date.month}/${order.date.year}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           if (order.name.isNotEmpty) Text('Name: ${order.name}'),
                           Text('Order Type: ${order.orderType}'),
-                          Text('No. of Persons: ${order.numberOfPersons}'),
+                          Text('Check in Time: ${order.date.hour}:${order.date.minute}'),
                         ],
                       ),
                     ),
@@ -243,10 +266,10 @@ class _HistoryPageState extends State<HistoryPage> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${order.totalBill.toStringAsFixed(2)} INR',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            '₹ ${order.totalBill.toStringAsFixed(2)} ',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
                           ),
-                          if (order.isFlagged) Icon(Icons.flag, color: Colors.red, size: 16.0),
+                          if (order.isFlagged) const Icon(Icons.flag, color: Colors.red, size: 16.0),
                         ],
                       ),
                     ),
@@ -261,18 +284,36 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Widget _buildTotalEarnings(double totalEarnings) {
-    return Card(
-      margin: EdgeInsets.all(16.0),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Total Earnings', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text('${totalEarnings.toStringAsFixed(2)} INR'),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor, // Set your desired background color
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Total Earnings',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20.0,
+              color: Colors.white, // Set your desired text color
+            ),
+          ),
+          const SizedBox(height: 8.0),
+          Text(
+            '₹ ${totalEarnings.toStringAsFixed(2)} ',
+            style: const TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white, // Set your desired text color
+            ),
+          ),
+        ],
       ),
     );
   }
+
 }

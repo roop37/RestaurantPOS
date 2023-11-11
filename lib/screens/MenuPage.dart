@@ -1,16 +1,14 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:management/models/MenuList.dart';
-import 'package:management/models/menu.model.dart';
-import 'package:management/models/order.model.dart';
-import 'package:management/models/orderItem.model.dart';
-import 'package:management/redux/App_state.dart';
-import 'package:management/redux/actions.dart';
-import 'package:management/models/table.model.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:management/storage/data_manager.dart';
-import 'package:redux/redux.dart';
+import 'package:gravitea_pos/app_colors.dart';
+import 'package:gravitea_pos/models/menu.model.dart';
+import 'package:gravitea_pos/models/order.model.dart';
+import 'package:gravitea_pos/models/orderItem.model.dart';
+import 'package:gravitea_pos/redux/App_state.dart';
+import 'package:gravitea_pos/redux/actions.dart';
+import 'package:gravitea_pos/models/table.model.dart';
+import 'package:gravitea_pos/storage/data_manager.dart';
 
 import 'TablePage.dart';
 
@@ -107,23 +105,36 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Menu'),
+        title: const Text('Menu'),
+        backgroundColor: AppColors.primaryColor, // Set app bar background color
+
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Search',
-                prefixIcon: Icon(Icons.search),
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(
+                      color: AppColors.bod,
+                      width: 2.0, // Set the border thickness
+                    ),
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    searchTerm = value;
+                  });
+                },
               ),
-              onChanged: (value) {
-                setState(() {
-                  searchTerm = value;
-                });
-              },
             ),
+
           ),
           Expanded(
             child: ListView.builder(
@@ -132,26 +143,40 @@ class _MenuPageState extends State<MenuPage> {
                 final menuItem = filteredMenuList[index];
                 final quantity = quantityMap[menuItem.name] ?? 0;
 
-                return ListTile(
-                  title: Text(menuItem.name ?? ""),
-                  subtitle: Text('Price: ${menuItem.price} INR'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove),
-                        onPressed: () {
-                          updateQuantity(menuItem, quantity - 1);
-                        },
-                      ),
-                      Text(quantity.toString()),
-                      IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () {
-                          updateQuantity(menuItem, quantity + 1);
-                        },
-                      ),
-                    ],
+                return Card(
+                  elevation: 6.0,
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    side: const BorderSide(color: AppColors.bod),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      menuItem.name ?? "",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                    ),
+                    subtitle: Text(
+                      'Price: ₹ ${menuItem.price} ',
+                      style: const TextStyle(fontSize: 14.0),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: () {
+                            updateQuantity(menuItem, quantity - 1);
+                          },
+                        ),
+                        Text(quantity.toString()),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () {
+                            updateQuantity(menuItem, quantity + 1);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -160,17 +185,30 @@ class _MenuPageState extends State<MenuPage> {
         ],
       ),
       bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ElevatedButton(
-              onPressed: confirmSelection,
-              child: Text('Confirm Selection'),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: confirmSelection,
+                  style: ElevatedButton.styleFrom(
+                    primary: AppColors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Confirm Selection',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-

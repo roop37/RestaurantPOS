@@ -1,5 +1,6 @@
-import 'package:management/models/order.model.dart';
-import 'package:management/models/orderItem.model.dart';
+import 'package:gravitea_pos/models/order.model.dart';
+import 'package:gravitea_pos/models/orderItem.model.dart';
+
 
 
 class TableModel {

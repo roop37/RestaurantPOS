@@ -1,14 +1,14 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:management/models/OrderDetails.model.dart';
-import 'package:management/models/orderItem.model.dart';
-import 'package:management/models/table.model.dart';
-import 'package:management/redux/App_state.dart';
-import 'package:management/redux/actions.dart';
-import 'package:management/widgets/OrderDetailsClosing.dart';
+import 'package:gravitea_pos/app_colors.dart';
+import 'package:gravitea_pos/models/OrderDetails.model.dart';
+import 'package:gravitea_pos/models/orderItem.model.dart';
+import 'package:gravitea_pos/models/table.model.dart';
+import 'package:gravitea_pos/redux/App_state.dart';
+import 'package:gravitea_pos/redux/actions.dart';
+import 'package:gravitea_pos/widgets/OrderDetailsClosing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderClosingPopup extends StatefulWidget {
@@ -16,7 +16,6 @@ class OrderClosingPopup extends StatefulWidget {
   final TableModel tableData;
   final double totalBill;
   final DateTime date;
-
 
   OrderClosingPopup({
     required this.tableNumber,
@@ -30,7 +29,8 @@ class OrderClosingPopup extends StatefulWidget {
 }
 
 class _OrderClosingPopupState extends State<OrderClosingPopup> {
-  final TextEditingController transactionTypeController = TextEditingController();
+  final TextEditingController transactionTypeController =
+  TextEditingController();
   final TextEditingController remarksController = TextEditingController();
   bool isFlagged = false;
   String selectedTransactionType = 'Cash';
@@ -54,8 +54,6 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final customerName = widget.tableData.order?.customerName ?? '';
@@ -69,13 +67,13 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Total Bill: ${widget.totalBill.toStringAsFixed(2)} INR',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Total Bill: ₹ ${widget.totalBill.toStringAsFixed(2)} ',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Text('Transaction Type: '),
+                const Text('Transaction Type: '),
                 DropdownButton<String>(
                   value: selectedTransactionType,
                   onChanged: (value) {
@@ -94,10 +92,10 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Text('Is Flagged: '),
+                const Text('Is Flagged: '),
                 Switch(
                   value: isFlagged,
                   onChanged: (value) {
@@ -105,13 +103,14 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
                       isFlagged = value;
                     });
                   },
+                  activeColor: AppColors.primaryColor,
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Text('Order Type: '),
+                const Text('Order Type: '),
                 DropdownButton<String>(
                   value: selectedOrderType,
                   onChanged: (value) {
@@ -130,54 +129,61 @@ class _OrderClosingPopupState extends State<OrderClosingPopup> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             isFlagged
                 ? TextField(
               controller: remarksController,
-              decoration: InputDecoration(labelText: 'Remarks'),
+              decoration: const InputDecoration(labelText: 'Remarks'),
             )
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
           ],
         ),
       ),
       actions: [
-        ElevatedButton(
-          onPressed: () async {
-            final remarks = remarksController.text;
-            final orderData = OrderDetails(
-              date: widget.date,
-              name: customerName,
-              numberOfPersons: numberOfPersons,
-              orderItems: orderItems, // Serialize items
-              transactionType: selectedTransactionType,
-              isFlagged: isFlagged,
-              remarks: remarks,
-              totalBill: widget.totalBill,
-              orderType: selectedOrderType, // Set the orderType property
+        Container(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async {
+              final remarks = remarksController.text;
+              final orderData = OrderDetails(
+                date: widget.date,
+                name: customerName,
+                numberOfPersons: numberOfPersons,
+                orderItems: orderItems, // Serialize items
+                transactionType: selectedTransactionType,
+                isFlagged: isFlagged,
+                remarks: remarks,
+                totalBill: widget.totalBill,
+                orderType: selectedOrderType, // Set the orderType property
+              );
 
-            );
+              saveOrderDataToLocal(orderData);
 
-            saveOrderDataToLocal(orderData);
+              final updatedTable = widget.tableData.copyWith(
+                isOccupied: false,
+                order: null,
+              );
+              StoreProvider.of<AppState>(context)
+                  .dispatch(UpdateTableAction(updatedTable));
 
-            final updatedTable = widget.tableData.copyWith(isOccupied: false, order: null);
-            StoreProvider.of<AppState>(context).dispatch(UpdateTableAction(updatedTable));
-
-            Navigator.of(context).pop();
-            showModalBottomSheet(
-              context: context,
-              builder: (context) => OrderDetailsClosing(orderData: orderData), // Pass the orderData
-            );
-          },
-          child: Text('Confirm Closing of Order'),
-
-
+              Navigator.of(context).pop();
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => OrderDetailsClosing(
+                  orderData: orderData,
+                ), // Pass the orderData
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              primary: AppColors.primaryColor, // Set your primary color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: const Text('Confirm Closing of Order'),
+          ),
         ),
-
-
       ],
     );
   }
-
 }
-
-

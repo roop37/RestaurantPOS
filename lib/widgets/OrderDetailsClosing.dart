@@ -1,67 +1,90 @@
+import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:management/models/OrderDetails.model.dart';
-import 'package:management/screens/HomePage.dart';
-import 'package:screenshot/screenshot.dart';
+import 'package:gravitea_pos/app_colors.dart';
+import 'package:gravitea_pos/models/OrderDetails.model.dart';
+import 'package:gravitea_pos/screens/HomePage.dart';
+import 'package:path_provider/path_provider.dart';
 
 class OrderDetailsClosing extends StatelessWidget {
   final OrderDetails orderData;
 
   OrderDetailsClosing({required this.orderData});
-  final ScreenshotController screenshotController = ScreenshotController();
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Order Details'),
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Customer Name: ${orderData.name}'),
-            Text('Number of Persons: ${orderData.numberOfPersons}'),
-            Text('Total Bill: ${orderData.totalBill.toStringAsFixed(2)} INR'),
-            Text('Transaction Type: ${orderData.transactionType}'),
-            Text('Is Flagged: ${orderData.isFlagged ? 'Yes' : 'No'}'),
-            Text('Remarks: ${orderData.remarks}'),
-            Text('Order Items:'),
-            for (var item in orderData.orderItems)
-              Text('- ${item.menuItem} x ${item.quantity}'),
-          ],
+    return RepaintBoundary(
+      key: key,
+      child: AlertDialog(
+        title: Text(
+          'Order Details',
+          style: TextStyle(color: AppColors.primaryColor), // Customize title color
         ),
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            onPressed: () async {
-              final Uint8List? screenshot = await screenshotController
-                  .capture();
-              if (screenshot != null) {
-                // Save the screenshot or perform other actions
-              }
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Screenshot saved successfully!'),
-                  duration: Duration(seconds: 3),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDetailRow('Customer Name', orderData.name),
+              _buildDetailRow(
+                'Number of Persons',
+                orderData.numberOfPersons.toString(),
+              ),
+              _buildDetailRow(
+                'Total Bill',
+                '₹ ${orderData.totalBill.toStringAsFixed(2)} ',
+              ),
+              _buildDetailRow('Transaction Type', orderData.transactionType),
+              _buildDetailRow(
+                'Is Flagged',
+                orderData.isFlagged ? 'Yes' : 'No',
+              ),
+              _buildDetailRow('Remarks', orderData.remarks),
+              Text('Order Items:', style: TextStyle(fontWeight: FontWeight.bold)),
+              for (var item in orderData.orderItems)
+                _buildDetailRow(
+                  '- ${item.menuItem} x ${item.quantity}',
+                  '',
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Close the OrderDetailsClosing popup and navigate back to HomeScreen
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(),
                 ),
               );
-            };
-          },
-          child: Text('Save a Screenshot'),
-        ),
-        TextButton(
-          onPressed: () {
-            // Close the OrderDetailsClosing popup and navigate back to HomeScreen
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(),
-              ),
-            );          },
-          child: Text('Close'),
-        ),
-      ],
+            },
+            style: TextButton.styleFrom(
+              primary: AppColors.primaryColor, // Customize button text color
+            ),
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          Expanded(
+            child: Text(value),
+          ),
+        ],
+      ),
+
     );
   }
 }

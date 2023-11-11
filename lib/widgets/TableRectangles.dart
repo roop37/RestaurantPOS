@@ -1,23 +1,29 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../app_colors.dart'; // Import the color file
 
 class TableWidget extends StatelessWidget {
   final int tableNumber;
   final bool isOccupied;
+  final Color backgroundColor; // New parameter
 
-  TableWidget({required this.tableNumber, required this.isOccupied});
+  TableWidget({
+    required this.tableNumber,
+    required this.isOccupied,
+    required this.backgroundColor, // Add the new parameter
+  });
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor = isOccupied ? Colors.red : Colors.green;
+    Color statusColor = isOccupied ? AppColors.tert : backgroundColor;
     String statusText = isOccupied ? 'Occupied' : 'Vacant';
 
     return Container(
       height: 80.0, // Increased height
       margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 10.0), // Added margin
       decoration: BoxDecoration(
-        color: statusColor,
+        color: statusColor, // Use the provided backgroundColor
         borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(color: AppColors.primaryColor), // Add border color
       ),
       child: Center(
         child: Row(

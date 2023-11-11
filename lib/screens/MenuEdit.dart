@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:management/models/menu.model.dart';
-import 'package:management/screens/HomePage.dart';
-import 'package:management/screens/ProfilePage.dart';
-import 'package:management/storage/data_manager.dart';
-import 'package:management/widgets/BottomNavB.dart';
+import 'package:gravitea_pos/app_colors.dart';
+import 'package:gravitea_pos/models/menu.model.dart';
+import 'package:gravitea_pos/screens/HomePage.dart';
+import 'package:gravitea_pos/screens/ProfilePage.dart';
+import 'package:gravitea_pos/storage/data_manager.dart';
+import 'package:gravitea_pos/widgets/BottomNavB.dart';
 
 class MenuEditPage extends StatefulWidget {
   @override
@@ -49,16 +50,16 @@ class _MenuEditPageState extends State<MenuEditPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Menu Item'),
+          title: const Text('Edit Menu Item'),
           content: Column(
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
               ),
               TextField(
                 controller: priceController,
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: const InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
               ),
             ],
@@ -68,7 +69,7 @@ class _MenuEditPageState extends State<MenuEditPage> {
               onPressed: () {
                 Navigator.pop(context); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -95,7 +96,7 @@ class _MenuEditPageState extends State<MenuEditPage> {
                   Navigator.pop(context); // Close the dialog
                 }
               },
-              child: Text('Confirm'),
+              child: const Text('Confirm'),
             ),
           ],
         );
@@ -132,19 +133,19 @@ class _MenuEditPageState extends State<MenuEditPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Deletion'),
+          title: const Text('Confirm Deletion'),
           content: Text('Are you sure you want to delete ${menuItem.name}?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(), // Cancel the operation
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
                 deleteMenuItem(menuItem); // Call deleteMenuItem with MenuItem
               },
-              child: Text('Confirm'),
+              child: const Text('Confirm'),
             ),
           ],
         );
@@ -160,16 +161,16 @@ class _MenuEditPageState extends State<MenuEditPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Menu Item'),
+          title: const Text('Add Menu Item'),
           content: Column(
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
               ),
               TextField(
                 controller: priceController,
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: const InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
               ),
             ],
@@ -179,7 +180,7 @@ class _MenuEditPageState extends State<MenuEditPage> {
               onPressed: () {
                 Navigator.pop(context); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -201,7 +202,7 @@ class _MenuEditPageState extends State<MenuEditPage> {
                   Navigator.pop(context); // Close the dialog
                 }
               },
-              child: Text('Confirm'),
+              child: const Text('Confirm'),
             ),
           ],
         );
@@ -210,63 +211,65 @@ class _MenuEditPageState extends State<MenuEditPage> {
   }
 
 
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('My Menus'),
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: searchController,
-                onChanged: (value) {
-                  filterMenuList(value);
-                },
-                decoration: InputDecoration(
-                  labelText: 'Search',
-                  prefixIcon: Icon(Icons.search),
-                ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Menus'),
+        backgroundColor: AppColors.primaryColor, // Set app bar background color
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              onChanged: (value) {
+                filterMenuList(value);
+              },
+              decoration: const InputDecoration(
+                labelText: 'Search',
+                prefixIcon: Icon(Icons.search),
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredMenuList.length,
-                itemBuilder: (context, index) {
-                  final menuItem = filteredMenuList[index];
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredMenuList.length,
+              itemBuilder: (context, index) {
+                final menuItem = filteredMenuList[index];
 
-                  return ListTile(
-                    title: Text('${menuItem.name} - ${menuItem.price} INR'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {
-                            editMenuItem(menuItem);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            handleDelete(menuItem); // Pass the MenuItem you want to delete
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                return ListTile(
+                  title: Text('${menuItem.name} -₹ ${menuItem.price} '),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          editMenuItem(menuItem);
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          handleDelete(menuItem);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             addMenuItem();
           },
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
+          backgroundColor: AppColors.accentColor, // Set FAB background color
         ),
         bottomNavigationBar: MyBottomNavigationBar(
           currentIndex: 1,
@@ -287,9 +290,9 @@ class _MenuEditPageState extends State<MenuEditPage> {
               );
             }
           },
+          backgroundColor: AppColors.primaryColor, // Set bottom navigation bar background color
         ),
       );
     }
-  }
-
+}
 

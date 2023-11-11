@@ -2,8 +2,9 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:management/models/OrderDetails.model.dart';
-import 'package:management/models/orderItem.model.dart';
+import 'package:gravitea_pos/app_colors.dart';
+import 'package:gravitea_pos/models/OrderDetails.model.dart';
+import 'package:gravitea_pos/models/orderItem.model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,8 @@ import 'package:fl_chart/fl_chart.dart';
 
 
 class AnalyticsPage extends StatefulWidget {
+  const AnalyticsPage({super.key});
+
   @override
   _AnalyticsPageState createState() => _AnalyticsPageState();
 }
@@ -28,7 +31,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Future<void> fetchOrdersFromLocalStorage() async {
-    try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<String> storedOrders = prefs.getStringList('orderList') ?? [];
 
@@ -38,20 +40,18 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             OrderDetails.fromJson(json.decode(orderJson)))
             .toList();
       });
-      print('Successfully fetched orders: $orderList');
-    } catch (e) {
-      print('Error fetching order data: $e');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Analytics'),
+        title: const Text('Analytics'),
+        backgroundColor: AppColors.primaryColor, // Set app bar background color
+
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,54 +211,59 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     Widget chartWidget = _buildWeeklyEarningsLineChart();
 
     return Card(
+      elevation: 5.0,
+      margin: const EdgeInsets.all(16.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            const Text(
               'Total Weekly Earnings:',
-              style: TextStyle(fontSize: 16.0),
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'This Week\'s Total: ',
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 Text(
-                  '${averageWeeklyEarnings.toStringAsFixed(2)} INR',
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  '₹ ${averageWeeklyEarnings.toStringAsFixed(2)} ',
+                  style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             // Display the chart
             chartWidget,
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             // Compare this week's total with last week's total
-            Text(
+            const Text(
               'Last Week\'s Total Earnings:',
               style: TextStyle(fontSize: 16.0),
             ),
             Text(
-              '${lastWeekAverageWeeklyEarnings.toStringAsFixed(2)} INR',
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              '₹ ${lastWeekAverageWeeklyEarnings.toStringAsFixed(2)} ',
+              style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8.0),
-            Text(
+            const SizedBox(height: 8.0),
+            const Text(
               'Comparison:',
               style: TextStyle(fontSize: 16.0),
             ),
             Text(
-              '${compareWeeklyEarnings(averageWeeklyEarnings, lastWeekAverageWeeklyEarnings)}',
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              compareWeeklyEarnings(averageWeeklyEarnings, lastWeekAverageWeeklyEarnings),
+              style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
     );
   }
+
 
 // Add this method to compare weekly earnings
   String compareWeeklyEarnings(double currentWeekEarnings, double lastWeekEarnings) {
@@ -277,7 +282,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget _buildWeeklyEarningsLineChart() {
     List<FlSpot> spots = _getWeeklyEarningsSpots();
 
-    return Container(
+    return SizedBox(
       height: 150,
       child: LineChart(
         LineChartData(
@@ -286,13 +291,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               spots: spots,
               isCurved: true,
               color: Colors.blue,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(show: false),
             ),
           ],
 
           borderData: FlBorderData(show: true),
-          gridData: FlGridData(show: false),
+          gridData: const FlGridData(show: false),
         ),
       ),
     );
@@ -351,73 +356,39 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     Map<String, double> top5MenuItems = calculateTopMenuItems();
 
     return Card(
+      elevation: 5.0,
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            const Text(
               'Top 5 Menu Items:',
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 15.0),
+            const SizedBox(height: 15.0),
             if (top5MenuItems.length >= 5) // Check if there are enough items
               Column(
                 children: [
-                  Container(
+                  SizedBox(
                     height: 150, // Set a fixed height for the chart
                     child: BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
                         maxY: calculateMaxEarnings(top5MenuItems.values.toList()),
 
-                        barGroups: [
-                          BarChartGroupData(
-                            x: 0,
+                        barGroups: List.generate(
+                          top5MenuItems.length,
+                              (index) => BarChartGroupData(
+                            x: index,
                             barRods: [
                               BarChartRodData(
-                                toY: top5MenuItems.values.toList()[0],
+                                toY: top5MenuItems.values.toList()[index],
                                 color: getColor(), // Customize the color
                               ),
                             ],
                           ),
-                          BarChartGroupData(
-                            x: 1,
-                            barRods: [
-                              BarChartRodData(
-                                toY: top5MenuItems.values.toList()[1],
-                                color: getColor(), // Customize the color
-                              ),
-                            ],
-                          ),
-                          BarChartGroupData(
-                            x: 2,
-                            barRods: [
-                              BarChartRodData(
-                                toY: top5MenuItems.values.toList()[2],
-                                color: getColor(), // Customize the color
-                              ),
-                            ],
-                          ),
-                          BarChartGroupData(
-                            x: 3,
-                            barRods: [
-                              BarChartRodData(
-                                toY: top5MenuItems.values.toList()[3],
-                                color: getColor(), // Customize the color
-                              ),
-                            ],
-                          ),
-                          BarChartGroupData(
-                            x: 4,
-                            barRods: [
-                              BarChartRodData(
-                                toY: top5MenuItems.values.toList()[4],
-                                color: getColor(), // Customize the color
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -432,7 +403,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           children: [
                             Text(
                               '(${top5MenuItems.keys.toList().indexOf(entry.key) + 1})',
-                              style: TextStyle(fontSize: 12.0),
+                              style: const TextStyle(fontSize: 12.0),
                             ),
                             Text(entry.key),
                             Text('Sold: ${entry.value.toInt()}'), // Display the total number sold
@@ -445,7 +416,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 ],
               )
             else
-              Text('Not enough data available. Minimum 5 menu items are required.'),
+              const Text('Not enough data available. Minimum 5 menu items are required.'),
           ],
         ),
       ),
@@ -460,16 +431,17 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     Map<int, int> top5BusiestTimes = calculateTop5BusiestTimeOfDay();
 
     return Card(
+      elevation: 5.0,
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            const Text(
               'Top 5 Busiest Times of Day:',
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             if (top5BusiestTimes.isNotEmpty)
               Column(
                 children: top5BusiestTimes.entries
@@ -481,16 +453,16 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       children: [
                         Text(
                           '${top5BusiestTimes.keys.toList().indexOf(entry.key) + 1})',
-                          style: TextStyle(fontSize: 12.0),
+                          style: const TextStyle(fontSize: 12.0),
                         ),
-                        SizedBox(width: 8.0),
+                        const SizedBox(width: 8.0),
                         Expanded(
                           child: Text(
                             '${entry.key}:30 - ${(entry.key + 1) % 24}:00',
-                            style: TextStyle(fontSize: 16.0),
+                            style: const TextStyle(fontSize: 16.0),
                           ),
                         ),
-                        SizedBox(width: 8.0),
+                        const SizedBox(width: 8.0),
                         Text('${entry.value} orders'),
                       ],
                     ),
@@ -499,13 +471,12 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     .toList(),
               )
             else
-              Text('No data available.'),
+              const Text('No data available.'),
           ],
         ),
       ),
     );
   }
-
 
   Map<int, int> calculateTop5BusiestTimeOfDay() {
     if (orderList.isEmpty) {
@@ -545,17 +516,26 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget _buildAverageOrderValueContent() {
     double averageOrderValue = calculateAverageOrderValue();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Average Order Value:'),
-        Text(
-          '${averageOrderValue.toStringAsFixed(2)} INR',
-          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+    return Card(
+      elevation: 5.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+
+            const SizedBox(height: 8.0),
+            Text(
+              '₹ ${averageOrderValue.toStringAsFixed(2)} ',
+              style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
+
+
 
   double calculateAverageOrderValue() {
     if (orderList.isEmpty) {
@@ -568,17 +548,17 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget _buildCard({required String title, required Widget content}) {
     return Card(
       elevation: 3.0,
-      margin: EdgeInsets.only(bottom: 16.0),
+      margin: const EdgeInsets.only(bottom: 16.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 12.0),
+            const SizedBox(height: 12.0),
             content,
           ],
         ),
@@ -589,17 +569,29 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     Map<String, int> customerFrequencyMap = calculateCustomerFrequency();
     List<MapEntry<String, int>> sortedFrequencies = sortCustomerFrequencies(customerFrequencyMap);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (int i = 0; i < 3 && i < sortedFrequencies.length; i++)
-          Text(
-            '${sortedFrequencies[i].key}: ${sortedFrequencies[i].value} orders',
-            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-          ),
-      ],
+    return Card(
+      elevation: 5.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Top 3 Customers by Order Frequency:',
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8.0),
+            for (int i = 0; i < 3 && i < sortedFrequencies.length; i++)
+              Text(
+                '${sortedFrequencies[i].key}: ${sortedFrequencies[i].value} orders',
+                style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+          ],
+        ),
+      ),
     );
   }
+
 
   Map<String, int> calculateCustomerFrequency() {
     Map<String, int> customerFrequencyMap = {};
@@ -667,18 +659,18 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         for (var entry in transactionTypeCounts.entries)
           Column(
             children: [
-              SizedBox(height: 5,),
+              const SizedBox(height: 5,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('${entry.key}: ${entry.value}'),
                 ],
               ),
-              SizedBox(height: 5,),
+              const SizedBox(height: 5,),
               LinearPercentIndicator(
                 lineHeight: 8.0,
                 percent: entry.value / totalOrders,
-                progressColor: Colors.blue,
+                progressColor: AppColors.primaryColor,
               ),
             ],
           ),
@@ -713,18 +705,18 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
         return Column(
           children: [
-            SizedBox(height: 5,),
+            const SizedBox(height: 5,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('$orderType: $orderCount Orders'),
               ],
             ),
-            SizedBox(height: 5,),
+            const SizedBox(height: 5,),
             LinearPercentIndicator(
               lineHeight: 9.0,
               percent: orderPercentage / 100,
-              progressColor: Colors.blue,
+              progressColor: AppColors.primaryColor,
             ),
           ],
         );
@@ -750,22 +742,34 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     double lastMonthAverage = calculateLastMonthAverage();
 
     return Card(
-      margin: EdgeInsets.all(16.0),
+      elevation: 5.0,
+      margin: const EdgeInsets.all(16.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('This month: ${thisMonthAverage.toStringAsFixed(2)} INR'),
+            Text(
+              'This Month: ₹ ${thisMonthAverage.toStringAsFixed(2)} ',
+              style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16.0),
+            // Display the comparison chart
             _buildComparisonChart(thisMonthAverage, lastMonthAverage),
-            Text('Last Month Average Earning: ${lastMonthAverage.toStringAsFixed(2)} INR'),
+            const SizedBox(height: 16.0),
+            Text(
+              'Last Month Average Earning: ₹ ${lastMonthAverage.toStringAsFixed(2)} ',
+              style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
     );
   }
 
+
   Widget _buildComparisonChart(double thisMonthAverage, double lastMonthAverage) {
-    return Container(
+    return SizedBox(
       height: 200,
       child: BarChart(
         BarChartData(
@@ -868,7 +872,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
 
   Widget _buildTodayYesterdayComparisonChart(double todayEarnings, double yesterdayEarnings) {
-    return Container(
+    return SizedBox(
       height: 300,
       child: BarChart(
         BarChartData(
@@ -910,7 +914,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     }
 
     // Calculate the date for yesterday
-    DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+    DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
 
     // Filter orders that occurred yesterday
     List<OrderDetails> yesterdayOrders = orderList
@@ -943,41 +947,48 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
 
     return Card(
+      elevation: 5.0,
+      margin: const EdgeInsets.all(16.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            const Text(
               'Today\'s vs Yesterday\'s Earnings:',
-              style: TextStyle(fontSize: 16.0),
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 10.0),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Today\'s Average: ',
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 Text(
-                  '${getTodayAverageEarnings().toStringAsFixed(2)} INR',
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  '₹ ${getTodayAverageEarnings().toStringAsFixed(2)} ',
+                  style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
+            const SizedBox(height: 20.0),
             chartWidget,
-            Text(
+            const SizedBox(height: 10.0),
+            const Text(
               'Yesterday\'s Average Earnings:',
               style: TextStyle(fontSize: 16.0),
             ),
             Text(
-              '${getYesterdayAverageEarnings().toStringAsFixed(2)} INR',
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              '₹ ${getYesterdayAverageEarnings().toStringAsFixed(2)} ',
+              style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
     );
   }
+
 
 
 
